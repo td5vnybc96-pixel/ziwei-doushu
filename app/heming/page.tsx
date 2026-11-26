@@ -7,6 +7,7 @@ import { generateChart as buildChart } from '@/lib/ziwei/algorithm';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
 import { useTheme } from '@/components/ThemeProvider';
 import { useHistory } from '@/lib/ziwei/history';
+import { buildBaziCompatibility } from '@/lib/ziwei/compatibility';
 
 // ─── AiContent 渲染器（与 InsightPanel 一致）────────────────
 function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
@@ -122,7 +123,7 @@ export default function HemingPage() {
       const aSpouseLink = overlap(aSpouse, bMing);
       const bSpouseLink = overlap(bSpouse, aMing);
       const report = [
-        '**【双方命盘基础】**',
+        '**【紫微命盘基础】**',
         '甲方命宫主星：' + (aMing.join('、') || '空宫（需结合对宫借星）'),
         '乙方命宫主星：' + (bMing.join('、') || '空宫（需结合对宫借星）'),
         '**【夫妻宫互参】**',
@@ -132,47 +133,15 @@ export default function HemingPage() {
         '甲方命宫与乙方夫妻宫的主星交集：' + (bSpouseLink.join('、') || '无直接主星重合'),
         '**【五行局与命盘结构】**',
         '甲方：' + cA.wuxingJuName + '；乙方：' + cB.wuxingJuName + '。五行局不同不代表不合，需结合双方命宫、夫妻宫及三方四正综合看待。',
-        '**【解读提示】**',
-        '本结果是基于双方已排出的命宫、夫妻宫主星所作的结构化对照，不使用未经验证的百分制匹配分数，也不作婚姻成败断言。',
-        q ? '本次关注问题：' + q + '。当前免费版先给出可核对的盘面结构对照；针对问题的自然语言深度追问需另行启用 AI 服务。' : '可先查看双方夫妻宫与命宫的互参关系，再结合各自流年四化判断具体年份的互动主题。',
+        '**【八字合参】**',
+        buildBaziCompatibility(cA, cB),
+        '**【分析边界】**',
+        '本报告按排盘结果与传统干支关系规则生成，不使用未经验证的百分制匹配分数，也不对婚姻成败作断言。',
+        q ? '本次关注问题：' + q : '可继续结合双方当前大运、流年与现实相处情况，细看关系阶段与共同决策。',
       ].join('\\n\\n');
       setAnalysis(report);
       setAnalyzing(false);
       return;
-
-      const res = await fetch('/api/heming', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chartA: cA, chartB: cB, question: q ?? undefined }),
-      });
-      if (res.status === 404) { setApiMissing(true); throw new Error('api-missing'); }
-      if (!res.ok || !res.body) throw new Error();
-
-      const reader = res.body!.getReader();
-      const decoder = new TextDecoder();
-      let text = '';
-      let pendingLine = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        pendingLine += decoder.decode(value, { stream: true });
-        const lines = pendingLine.split('\n');
-        pendingLine = lines.pop() ?? '';
-        for (const rawLine of lines) {
-          const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
-          if (data === '[DONE]') break;
-          try {
-            const delta = JSON.parse(data).delta?.text ?? '';
-            text += delta;
-            setAnalysis(text);
-          } catch { /* skip */ }
-        }
-      }
-      // scroll to analysis
-      setTimeout(() => analysisRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     } catch {
       setAnalysisError(true);
     } finally {
@@ -230,7 +199,7 @@ export default function HemingPage() {
             紫微合盘
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--tx-3)', lineHeight: 1.6 }}>
-            输入两个人的出生信息，AI 基于倪海厦体系分析双方命盘的缘分匹配度、感情走向与相处建议
+            输入两个人的出生信息，结合双方紫微命盘与八字四柱，分析性格、感情、相处、金钱与近年时机
           </p>
         </div>
 
@@ -278,7 +247,7 @@ export default function HemingPage() {
             <div style={{ textAlign: 'center', padding: '32px 0' }}>
               <div style={{ fontSize: '13px', color: 'var(--tx-3)', marginBottom: '24px', lineHeight: 1.7 }}>
                 填好双方出生信息后，点击下方按钮<br />
-                AI 将基于倪海厦体系深度分析两人缘分匹配度
+                系统将按双方紫微命盘与八字四柱生成结构化合盘报告
               </div>
               <button
                 onClick={() => runAnalysis()}
@@ -310,7 +279,7 @@ export default function HemingPage() {
                 border: '2px solid var(--bdr-med)', borderTopColor: 'var(--ac)',
                 borderRadius: '50%', animation: 'spin 0.8s linear infinite',
               }} />
-              正在对比双方命盘…
+              正在对比双方紫微命盘与八字四柱…
             </div>
           )}
 
@@ -335,11 +304,11 @@ export default function HemingPage() {
             {/* 快捷问题 */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {[
-                '感情匹配度如何？',
+                '感情与相处模式如何？',
                 '适合合伙创业吗？',
                 '两人结婚是否合适？',
                 '哪方面最容易产生矛盾？',
-                '财运是否互补？',
+                '共同金钱观需要注意什么？',
               ].map(q => (
                 <button
                   key={q}
@@ -369,7 +338,7 @@ export default function HemingPage() {
                 value={question}
                 onChange={e => setQuestion(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !analyzing) runAnalysis(question || undefined); }}
-                placeholder="继续追问，如：哪几年是两人感情关键期？"
+                placeholder="继续追问，如：未来几年哪些年份更适合推进共同计划？"
                 disabled={analyzing}
                 className="input-base"
                 style={{ fontSize: '13px', flex: 1 }}
