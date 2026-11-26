@@ -30,7 +30,7 @@ export function useHistory() {
     ].filter(Boolean).join(' · ');
 
     const entry: HistoryEntry = {
-      id: Date.now().toString(),
+      id: Date.now().toString() + '-' + Math.random().toString(36).slice(2, 9),
       label,
       form,
       savedAt: Date.now(),

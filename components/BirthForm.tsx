@@ -60,6 +60,10 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
+  useEffect(() => {
+    if (initialData) setForm(prev => ({ ...prev, ...initialData }));
+  }, [initialData]);
+
   // 表单状态变化时实时同步给父级（合盘等场景下父级靠这个收集双方数据）
   useEffect(() => {
     onFormSave?.({ ...form });

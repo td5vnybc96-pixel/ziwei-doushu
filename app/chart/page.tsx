@@ -1,5 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useHistory } from '@/lib/ziwei/history';
+import type { BirthFormState } from '@/components/BirthForm';
 import BirthForm from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
 import InsightPanel from '@/components/InsightPanel';
@@ -20,6 +22,20 @@ import type { BirthInfo, ZiweiChart, Palace } from '@/lib/ziwei/types';
 export default function ChartPage() {
   const [chart, setChart] = useState<ZiweiChart | null>(null);
   const [selectedPalace, setSelectedPalace] = useState<Palace | null>(null);
+  const [formState, setFormState] = useState<BirthFormState | null>(null);
+  const formStateRef = useRef<BirthFormState | null>(null);
+  const [initialData, setInitialData] = useState<Partial<BirthFormState> | undefined>();
+  const { save } = useHistory();
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('ziwei_history_load');
+      if (raw) { setInitialData(JSON.parse(raw)); localStorage.removeItem('ziwei_history_load'); }
+    } catch {}
+  }, []);
+  const submitBirth = (info: BirthInfo) => {
+    setChart(generateChart(info));
+    if (formStateRef.current) save(formStateRef.current);
+  };
 
   // ── 未起盘：展示出生信息表单 ──
   if (!chart) {
@@ -31,7 +47,7 @@ export default function ChartPage() {
           <br />
           （本页为引擎 Demo，完整商业版界面不在开源范围；排盘内核完全开放。）
         </p>
-        <BirthForm onSubmit={(info: BirthInfo) => setChart(generateChart(info))} />
+        <BirthForm initialData={initialData} onFormSave={form => { setFormState(form); formStateRef.current = form; }} onSubmit={submitBirth} />
       </main>
     );
   }
@@ -39,6 +55,7 @@ export default function ChartPage() {
   // ── 已起盘：命盘 + 解读 ──
   return (
     <main style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 16px' }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
       <button
         type="button"
         onClick={() => { setChart(null); setSelectedPalace(null); }}
@@ -49,6 +66,9 @@ export default function ChartPage() {
       >
         ← 重新起盘
       </button>
+      <button type="button" onClick={() => formState && save(formState)} style={{ padding: '6px 14px', border: '1px solid var(--ac-bdr)', borderRadius: 8, color: 'var(--ac)' }}>保存命盘</button>
+      <a href="/history" style={{ padding: '6px 14px', border: '1px solid var(--bdr-med)', borderRadius: 8, color: 'var(--tx-2)', textDecoration: 'none' }}>历史记录</a>
+      </div>
 
       <div style={{ marginBottom: 20 }}>
         <DataInterpretationPanel chart={chart} />

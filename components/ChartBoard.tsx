@@ -6,6 +6,7 @@ import { BRANCHES, STEMS } from '@/lib/ziwei/constants';
 import { boshiShenName, jiangQianShenName, suiQianShenName } from '@/lib/ziwei/shier-shen';
 import PalaceCell from './PalaceCell';
 import TimeNav, { type TimeView, getYearStemIndex, buildSiHuaOverlay } from './TimeNav';
+import YearlyInterpretationPanel from './YearlyInterpretationPanel';
 
 interface ChartBoardProps {
   chart: ZiweiChart;
@@ -105,6 +106,7 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
         onViewChange={setTimeView}
         onYearChange={setLiunianYear}
       />
+      {timeView === 'liunian' && <YearlyInterpretationPanel chart={chart} year={liunianYear} />}
 
       {/* 命盘标题 */}
       <motion.div
