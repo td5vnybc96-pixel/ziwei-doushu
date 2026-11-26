@@ -1,7 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import type { ZiweiChart } from '@/lib/ziwei/types';
-import { SI_HUA_TABLE, STEMS, BRANCHES } from '@/lib/ziwei/constants';
+import { SI_HUA_TABLE, STEMS, BRANCHES, STAR_DESCRIPTIONS } from '@/lib/ziwei/constants';
 
 const DIMENSIONS = [
   { key: 'overview', label: '总览', palace: '命宫', focus: '年度主轴、整体节奏与需要优先处理的主题' },
@@ -42,6 +42,7 @@ export default function YearlyInterpretationPanel({ chart, year }: { chart: Ziwe
       const majorStars = palace?.stars.filter(s => s.type === 'major').map(s => s.name) ?? [];
       const allStars = palace?.stars.map(s => s.name) ?? [];
       const related = transformations.filter(t => t.palace === d.palace);
+      const starProfiles = majorStars.map(name => ({ name, profile: STAR_DESCRIPTIONS[name] })).filter(x => x.profile);
       const huaText = related.length
         ? related.map(t => `${t.star}化${t.label}（${HUA_MEANING[t.label]}）`).join('；')
         : '本宫没有直接承接本年四化星；需结合本宫星曜、对宫及三方四正一并观察，不宜只凭单宫下结论。';
@@ -50,7 +51,7 @@ export default function YearlyInterpretationPanel({ chart, year }: { chart: Ziwe
         majorStars,
         allStars,
         related,
-        text: `${d.focus}。本宫主星：${majorStars.join('、') || '空宫（需参考对宫借星）'}。本宫可见星曜：${allStars.slice(0, 8).join('、') || '暂无星曜资料'}。年度四化：${huaText}`,
+        text: `${d.focus}。本宫主星：${majorStars.join('、') || '空宫（需参考对宫借星）'}。主星取象：${starProfiles.map(x => `${x.name}（${x.profile!.keywords}；${x.profile!.nature}）`).join('；') || '空宫须借对宫主星参看'}。本宫可见星曜：${allStars.slice(0, 8).join('、') || '暂无星曜资料'}。年度四化：${huaText}`,
       };
     });
     return { stem: STEMS[stemIndex], branch: BRANCHES[branchIndex], transformations, sections };
