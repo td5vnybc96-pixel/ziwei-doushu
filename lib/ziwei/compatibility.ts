@@ -41,10 +41,11 @@ function elementRelation(a: string, b: string) {
 }
 
 export function buildBaziCompatibility(chartA: ZiweiChart, chartB: ZiweiChart, years = [2026,2027,2028,2029,2030]) {
-  const a = pillars(chartA), b = pillars(chartB);
+  const a = pillars(chartA).slice(0, chartA.birthInfo.unknownTime ? 3 : 4);
+  const b = pillars(chartB).slice(0, chartB.birthInfo.unknownTime ? 3 : 4);
   const names = ['年柱','月柱','日柱','时柱'];
-  if (a.length < 4 || b.length < 4) {
-    return '八字四柱资料不完整：本次仍可查看紫微命宫、夫妻宫互参，但不对缺失四柱作推断。';
+  if (a.length < 3 || b.length < 3) {
+    return '八字资料不完整：本次仍可查看紫微命宫、夫妻宫互参，但不对缺失柱位作推断。';
   }
   const aGan = a.map(p => p[0]), bGan = b.map(p => p[0]);
   const aZhi = a.map(p => p[1]), bZhi = b.map(p => p[1]);
@@ -73,7 +74,7 @@ export function buildBaziCompatibility(chartA: ZiweiChart, chartB: ZiweiChart, y
   const branchText = branchMatches.length ? branchMatches.join('；') : '双方四柱地支未见直接六合、六冲或六害；仍需结合三合局、藏干及大运进一步细看';
   return [
     '【八字四柱】',
-    `甲方：${a.join(' · ')}；乙方：${b.join(' · ')}（依次为年、月、日、时柱）`,
+    `甲方：${a.join(' · ')}${chartA.birthInfo.unknownTime ? '（时柱未知）' : ''}；乙方：${b.join(' · ')}${chartB.birthInfo.unknownTime ? '（时柱未知）' : ''}（依次为年、月、日、时柱；若标注时柱未知则仅按前三柱）`,
     `五行分布（天干与地支表层计数，不等同旺衰）：甲方 ${describe(elementsA)}；乙方 ${describe(elementsB)}。`,
     '【性格与互动底色】',
     `甲方日主${a[2][0]}属${dayA}，乙方日主${b[2][0]}属${dayB}。${elementRelation(dayA,dayB)}。`,
@@ -87,6 +88,6 @@ export function buildBaziCompatibility(chartA: ZiweiChart, chartB: ZiweiChart, y
     `紫微五行局：甲方${chartA.wuxingJuName}；乙方${chartB.wuxingJuName}。建议将紫微命宫/夫妻宫结构与八字日主、四柱合冲交叉参照，不用单一合冲或五行局给关系打分。`,
     '【近年关系时机（流年地支简析）】',
     ...timing,
-    '时机说明：以上只按流年干支与双方四柱地支的直接关系做初筛，不含双方大运、流月、流日，也不是确定性事件预测。若要进一步细化，需要核对双方出生时刻与大运起运口径。',
+    '时机说明：以上只按流年干支与双方已知柱位地支的直接关系做初筛，不含双方大运、流月、流日，也不是确定性事件预测。若出生时辰不详，已排除对应时柱，不会把默认子时当作真实时辰。若要进一步细化，需要核对双方出生时刻与大运起运口径。',
   ].join('\n\n');
 }
