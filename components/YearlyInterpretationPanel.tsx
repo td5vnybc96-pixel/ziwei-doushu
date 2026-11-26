@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import { SI_HUA_TABLE, STEMS, BRANCHES } from '@/lib/ziwei/constants';
 
@@ -10,8 +10,7 @@ const MEANING: Record<string, string> = {
   '忌': '传统象义偏向牵挂、阻滞与反复；宜预留缓冲，检查承诺与细节。',
 };
 
-export default function YearlyInterpretationPanel({ chart }: { chart: ZiweiChart }) {
-  const [year, setYear] = useState(new Date().getFullYear());
+export default function YearlyInterpretationPanel({ chart, year }: { chart: ZiweiChart; year: number }) {
   const result = useMemo(() => {
     const stemIndex = ((year - 4) % 10 + 10) % 10;
     const branchIndex = ((year - 4) % 12 + 12) % 12;
@@ -31,16 +30,9 @@ export default function YearlyInterpretationPanel({ chart }: { chart: ZiweiChart
 
   return (
     <section className="card-glass rounded-xl p-4 mt-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
-        <div>
-          <h3 className="text-xs font-semibold tracking-widest" style={{ color: 'var(--t-gold)' }}>流年解读 · 按年份查看</h3>
-          <p className="text-[10px] mt-1" style={{ color: 'var(--t-faint)' }}>依据流年干支四化叠加本命星曜宫位，展示传统象义；不等同于独立流年命盘或确定性预言。</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button type="button" aria-label="上一年" onClick={() => setYear(v => Math.max(1900, v - 1))} className="rounded-lg border px-3 py-1" style={{ borderColor: 'var(--t-border)', color: 'var(--t-text2)' }}>‹</button>
-          <input aria-label="流年年份" type="number" min="1900" max="2100" value={year} onChange={e => setYear(Math.min(2100, Math.max(1900, Number(e.target.value) || 1900)))} className="w-20 text-center rounded-lg border py-1 text-sm" style={{ background: 'var(--t-surface)', color: 'var(--t-text)', borderColor: 'var(--t-border)' }} />
-          <button type="button" aria-label="下一年" onClick={() => setYear(v => Math.min(2100, v + 1))} className="rounded-lg border px-3 py-1" style={{ borderColor: 'var(--t-border)', color: 'var(--t-text2)' }}>›</button>
-        </div>
+      <div className="mb-3">
+        <h3 className="text-xs font-semibold tracking-widest" style={{ color: 'var(--t-gold)' }}>流年解读 · 按年份查看</h3>
+        <p className="text-[10px] mt-1" style={{ color: 'var(--t-faint)' }}>年份请使用上方命盘时间轴切换；依据流年干支四化叠加本命星曜宫位，展示传统象义，不等同于独立流年命盘或确定性预言。</p>
       </div>
       <p className="text-[11px] mb-3" style={{ color: 'var(--t-text2)' }}>{year} 年 · {result.stem}{result.branch}年 · 流年四化落点</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
