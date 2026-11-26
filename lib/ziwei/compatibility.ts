@@ -11,7 +11,6 @@ const STEM_CLASH: Record<string,string> = { 甲:'庚',庚:'甲',乙:'辛',辛:'�
 const GENERATES: Record<string,string> = { 木:'火',火:'土',土:'金',金:'水',水:'木' };
 const CONTROLS: Record<string,string> = { 木:'土',土:'水',水:'火',火:'金',金:'木' };
 
-function pairKey(a: string, b: string) { return [a,b].sort().join(''); }
 function pillars(chart: ZiweiChart): string[] {
   const p = chart.lunarInfo.fourPillars ?? chart.lunarInfo.fourPillarsLunar ?? [];
   return p.filter(x => typeof x === 'string' && x.length >= 2);
