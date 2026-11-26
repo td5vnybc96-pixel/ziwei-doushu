@@ -216,6 +216,8 @@ export default function HemingPage() {
         <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>合盘分析</span>
         <div style={{ flex: 1 }} />
         <span style={{ fontSize: '11px', color: 'var(--tx-3)' }}>感情 · 合伙 · 亲子 · 朋友</span>
+        <button onClick={() => { if (formA) saveHistory(formA); if (formB) saveHistory(formB); }} style={{ border: '1px solid var(--bdr-med)', borderRadius: 8, padding: '6px 10px', color: 'var(--tx-2)', fontSize: 11 }}>保存双方命盘</button>
+        <button onClick={() => router.push('/history')} style={{ border: '1px solid var(--bdr-med)', borderRadius: 8, padding: '6px 10px', color: 'var(--tx-2)', fontSize: 11 }}>历史记录</button>
       </header>
 
       {/* 主体 */}
