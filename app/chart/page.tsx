@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useHistory } from '@/lib/ziwei/history';
 import type { BirthFormState } from '@/components/BirthForm';
 import BirthForm from '@/components/BirthForm';
@@ -24,6 +24,7 @@ export default function ChartPage() {
   const [chart, setChart] = useState<ZiweiChart | null>(null);
   const [selectedPalace, setSelectedPalace] = useState<Palace | null>(null);
   const [formState, setFormState] = useState<BirthFormState | null>(null);
+  const formStateRef = useRef<BirthFormState | null>(null);
   const [initialData, setInitialData] = useState<Partial<BirthFormState> | undefined>();
   const { save } = useHistory();
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function ChartPage() {
   }, []);
   const submitBirth = (info: BirthInfo) => {
     setChart(generateChart(info));
-    if (formState) save(formState);
+    if (formStateRef.current) save(formStateRef.current);
   };
 
   // ── 未起盘：展示出生信息表单 ──
@@ -47,7 +48,7 @@ export default function ChartPage() {
           <br />
           （本页为引擎 Demo，完整商业版界面不在开源范围；排盘内核完全开放。）
         </p>
-        <BirthForm initialData={initialData} onFormSave={setFormState} onSubmit={submitBirth} />
+        <BirthForm initialData={initialData} onFormSave={form => { setFormState(form); formStateRef.current = form; }} onSubmit={submitBirth} />
       </main>
     );
   }
