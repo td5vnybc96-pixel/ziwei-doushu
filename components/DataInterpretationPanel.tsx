@@ -34,6 +34,12 @@ export default function DataInterpretationPanel({ chart }: { chart: ZiweiChart }
   );
 
   useEffect(() => {
+    setData(null);
+    if (birth.unknownTime) {
+      setLoading(false);
+      setError('出生时辰不详，无法精确匹配 13 维数据。请补充出生时辰后再查询，避免把默认子时当成真实出生时辰。');
+      return;
+    }
     const controller = new AbortController();
     setLoading(true);
     setError('');
@@ -61,7 +67,7 @@ export default function DataInterpretationPanel({ chart }: { chart: ZiweiChart }
       });
 
     return () => controller.abort();
-  }, [date, birth.hour, birth.gender]);
+  }, [date, birth.hour, birth.gender, birth.unknownTime]);
 
   return (
     <section className="rounded-xl overflow-hidden card-glass" style={{ border: '1px solid var(--t-border)' }}>
@@ -71,7 +77,7 @@ export default function DataInterpretationPanel({ chart }: { chart: ZiweiChart }
           <span className="text-[9px]" style={{ color: 'var(--t-faint)' }}>确定性数据 · 无需 AI</span>
         </div>
         <p className="text-[10px] mt-1" style={{ color: 'var(--t-faint)' }}>
-          {date} · {birth.hour} 时辰 · {birth.gender === 'male' ? '男命' : '女命'}
+          {date} · {birth.unknownTime ? '时辰不详' : `${birth.hour} 时辰`} · {birth.gender === 'male' ? '男命' : '女命'}
         </p>
       </div>
 

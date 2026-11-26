@@ -44,6 +44,7 @@ export function formToBirthInfo(form: BirthFormState): BirthInfo {
   return {
     year: y, month: m, day: d,
     hour,
+    unknownTime: form.unknownTime,
     gender: form.gender,
     name: form.name || undefined,
     province: form.province || undefined,
