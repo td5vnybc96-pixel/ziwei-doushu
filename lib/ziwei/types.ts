@@ -3,6 +3,7 @@ export interface BirthInfo {
   month: number;     // Gregorian month (1-12)
   day: number;       // Gregorian day
   hour: number;      // 时辰 branch index (0=子, 1=丑, ... 11=亥)
+  unknownTime?: boolean; // 出生时辰不详时禁止将默认子时误当作精确时辰查询
   gender: 'male' | 'female';
   name?: string;
   province?: string;   // 出生省份
