@@ -459,7 +459,7 @@ cd ziwei-doushu
 # 安装依赖
 npm install
 
-# 配置环境变量（只看排盘可以跳过；AI 配置仅在你自己实现了 /api/* 接口时才用得上）
+# 配置环境变量（只看排盘与 13 维数据查询可以跳过；AI 问答为可选）
 cp .env.example .env.local
 
 # 启动开发服务器
@@ -475,7 +475,7 @@ npm test            # 排盘引擎回归（768 盘 × 紫微铁律、夏令时�
 
 每次 push 与 PR 都会在 GitHub Actions 上跑同一套（见 [`.github/workflows/ci.yml`](./.github/workflows/ci.yml)）。
 
-> **注意：开源版不含后端 API 路由。**排盘、命盘展示、合盘起盘都在浏览器里用本仓库的引擎完成，**不需要任何 API Key**。AI 解读（`/api/interpret`）和合盘 AI 分析（`/api/heming`）需要你自己实现接口；没实现之前，这两处会直接提示「开源版不含该接口」，配置 API Key 也不会变成可用（#30 就是这个原因）。
+> **本 fork 已补上两项后端能力：**`/api/interpretations` 按出生日期、时辰和性别读取公开 v4.0 数据集，提供 13 维确定性解读；`/api/interpret` 提供 OpenAI 兼容协议的可选 AI 流式问答。排盘和 13 维数据查询无需 API Key。AI 问答需在 Vercel 配置 `AI_PROVIDER` 与对应服务商密钥；未配置时只会提示 AI 未启用，不影响排盘与 13 维查询。合盘 AI 分析（`/api/heming`）仍需自行实现。
 
 ---
 
