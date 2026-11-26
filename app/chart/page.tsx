@@ -6,6 +6,7 @@ import BirthForm from '@/components/BirthForm';
 import ChartBoard from '@/components/ChartBoard';
 import InsightPanel from '@/components/InsightPanel';
 import DataInterpretationPanel from '@/components/DataInterpretationPanel';
+import YearlyInterpretationPanel from '@/components/YearlyInterpretationPanel';
 import { generateChart } from '@/lib/ziwei/algorithm';
 import type { BirthInfo, ZiweiChart, Palace } from '@/lib/ziwei/types';
 
@@ -71,6 +72,7 @@ export default function ChartPage() {
 
       <div style={{ marginBottom: 20 }}>
         <DataInterpretationPanel chart={chart} />
+        <YearlyInterpretationPanel chart={chart} />
       </div>
 
       <div
