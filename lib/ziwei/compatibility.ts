@@ -17,10 +17,10 @@ function pillars(chart: ZiweiChart): string[] {
   return p.filter(x => typeof x === 'string' && x.length >= 2);
 }
 function relation(a: string, b: string) {
-  const x = pairKey(a,b);
-  if (SIX_COMBINE.has(x)) return '六合：较容易形成协作、互相牵引的关系';
-  if (SIX_CLASH.has(x)) return '六冲：节奏或立场容易不同，需要提前沟通';
-  if (SIX_HARM.has(x)) return '六害：容易出现误会或隐性消耗，适合把话说清楚';
+  const x = a + b;
+  if (SIX_COMBINE.has(x) || SIX_COMBINE.has(b + a)) return '六合：较容易形成协作、互相牵引的关系';
+  if (SIX_CLASH.has(x) || SIX_CLASH.has(b + a)) return '六冲：节奏或立场容易不同，需要提前沟通';
+  if (SIX_HARM.has(x) || SIX_HARM.has(b + a)) return '六害：容易出现误会或隐性消耗，适合把话说清楚';
   return '';
 }
 function elementBalance(ps: string[]) {
