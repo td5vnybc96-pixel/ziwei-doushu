@@ -6,6 +6,7 @@ import { formToBirthInfo } from '@/lib/ziwei/share';
 import { generateChart as buildChart } from '@/lib/ziwei/algorithm';
 import type { BirthInfo, ZiweiChart } from '@/lib/ziwei/types';
 import { useTheme } from '@/components/ThemeProvider';
+import { useHistory } from '@/lib/ziwei/history';
 
 // ─── AiContent 渲染器（与 InsightPanel 一致）────────────────
 function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
@@ -50,6 +51,7 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
 export default function HemingPage() {
   const router = useRouter();
   const { theme } = useTheme();
+  const { save: saveHistory } = useHistory();
   const isDark = theme === 'dark';
 
   // ─── 双方命盘状态 ─────────────────────────────────────────
@@ -107,6 +109,36 @@ export default function HemingPage() {
       }
       setChartA(cA);
       setChartB(cB);
+
+      const palaceStars = (chart: ZiweiChart, palaceName: string) => {
+        const palace = chart.palaces.find(p => p.name === palaceName);
+        return palace?.stars.filter(s => s.type === 'major').map(s => s.name) ?? [];
+      };
+      const aMing = palaceStars(cA, '命宫');
+      const bMing = palaceStars(cB, '命宫');
+      const aSpouse = palaceStars(cA, '夫妻宫');
+      const bSpouse = palaceStars(cB, '夫妻宫');
+      const overlap = (a: string[], b: string[]) => a.filter(x => b.includes(x));
+      const aSpouseLink = overlap(aSpouse, bMing);
+      const bSpouseLink = overlap(bSpouse, aMing);
+      const report = [
+        '**【双方命盘基础】**',
+        '甲方命宫主星：' + (aMing.join('、') || '空宫（需结合对宫借星）'),
+        '乙方命宫主星：' + (bMing.join('、') || '空宫（需结合对宫借星）'),
+        '**【夫妻宫互参】**',
+        '甲方夫妻宫主星：' + (aSpouse.join('、') || '空宫（需结合对宫借星）'),
+        '乙方命宫与甲方夫妻宫的主星交集：' + (aSpouseLink.join('、') || '无直接主星重合'),
+        '乙方夫妻宫主星：' + (bSpouse.join('、') || '空宫（需结合对宫借星）'),
+        '甲方命宫与乙方夫妻宫的主星交集：' + (bSpouseLink.join('、') || '无直接主星重合'),
+        '**【五行局与命盘结构】**',
+        '甲方：' + cA.wuxingJuName + '；乙方：' + cB.wuxingJuName + '。五行局不同不代表不合，需结合双方命宫、夫妻宫及三方四正综合看待。',
+        '**【解读提示】**',
+        '本结果是基于双方已排出的命宫、夫妻宫主星所作的结构化对照，不使用未经验证的百分制匹配分数，也不作婚姻成败断言。',
+        q ? '本次关注问题：' + q + '。当前免费版先给出可核对的盘面结构对照；针对问题的自然语言深度追问需另行启用 AI 服务。' : '可先查看双方夫妻宫与命宫的互参关系，再结合各自流年四化判断具体年份的互动主题。',
+      ].join('\\n\\n');
+      setAnalysis(report);
+      setAnalyzing(false);
+      return;
 
       const res = await fetch('/api/heming', {
         method: 'POST',
