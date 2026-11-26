@@ -26,11 +26,12 @@ export default function LiuRenPage() {
     if (!y || !m || !d) return null;
     try {
       const lunar = Solar.fromYmd(y,m,d).getLunar();
-      const month = lunar.getMonth();
+      const rawMonth = lunar.getMonth();
+      const month = Math.abs(rawMonth);
       const day = lunar.getDay();
       const hourIndex = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'].indexOf(hour);
       const index = ((month - 1 + day - 1 + hourIndex) % 6 + 6) % 6;
-      return { lunarMonth: month, lunarDay: day, name: NAMES[index], reading: READINGS[index], index };
+      return { lunarMonth: month, leapMonth: rawMonth < 0, lunarDay: day, name: NAMES[index], reading: READINGS[index], index };
     } catch { return null; }
   }, [date,hour]);
 
@@ -54,7 +55,7 @@ export default function LiuRenPage() {
       </section>
       {result ? (
         <section className="card-glass rounded-2xl p-6 mt-5 text-center">
-          <p className="text-xs mb-2" style={{ color: 'var(--tx-3)' }}>农历 {result.lunarMonth}月{result.lunarDay}日 · {hour}时</p>
+          <p className="text-xs mb-2" style={{ color: 'var(--tx-3)' }}>农历 {result.leapMonth ? '闰' : ''}{result.lunarMonth}月{result.lunarDay}日 · {hour}时</p>
           <div className="text-4xl font-semibold tracking-widest my-4" style={{ color: 'var(--ac)' }}>{result.name}</div>
           <p className="text-sm font-medium mb-2" style={{ color: 'var(--tx-0)' }}>{result.reading[0]}</p>
           <p className="text-sm leading-7" style={{ color: 'var(--tx-2)' }}>{result.reading[1]}</p>
